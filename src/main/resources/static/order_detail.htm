@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>订单详情</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.css" />
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/js/vue.min.js"></script>
+    <script type="text/javascript" src="/js/axios.min.js"></script>
+    <script type="text/javascript" src="/js/common.js"></script>
+    <script type="text/javascript" src="/js/moment.js"></script>
+    <script type="text/javascript" src="/layer/layer.js"></script>
+    <script>
+        Vue.filter("formatDateFilter",function (value,formatString) {
+            if(value==null)
+                return "";
+            formatString = formatString || "YYYY-MM-DD HH:mm:ss";
+            return moment(value).format(formatString);
+        })
+    </script>
+</head>
+<body>
+<div id="app">
+    <div class="panel panel-default">
+        <div class="panel-heading">秒杀订单详情</div>
+        <table class="table" id="goodslist">
+            <tr>
+                <td>商品名称</td>
+                <td colspan="3">{{orderInfo.goodsName}}</td>
+            </tr>
+            <tr>
+                <td>商品图片</td>
+                <td colspan="2"><img :src="goodsVo.goodsImg" width="200" height="200" /></td>
+            </tr>
+            <tr>
+                <td>订单价格</td>
+                <td colspan="2">{{orderInfo.goodsPrice}}</td>
+            </tr>
+            <tr>
+                <td>下单时间</td>
+                <td colspan="2">{{orderInfo.createDate | formatDateFilter}}</td>
+            </tr>
+            <tr>
+                <td>订单状态</td>
+                <td v-if="orderInfo.status == 0">未支付</td>
+                <td v-if="orderInfo.status == 1">已支付</td>
+                <td v-if="orderInfo.status == 2">待收货</td>
+                <td v-if="orderInfo.status == 3">已收货</td>
+                <td v-if="orderInfo.status == 4">已退款</td>
+                <td v-if="orderInfo.status == 5">已完成</td>
+                <td>
+                    <button class="btn btn-primary btn-block" type="submit" id="payButton">立即支付</button>
+                </td>
+            </tr>
+            <tr>
+                <td>收货人</td>
+                <td colspan="2">XXXXXXX</td>
+            </tr>
+            <tr>
+                <td>收货地址</td>
+                <td colspan="2">南京市浦口区</td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        $(function () {
+            var url="/order/detail/"+g_getQueryString("orderId");
+            var vue = new Vue({
+                el:"#app",
+                data:{
+                   orderInfo:'', 
+                   goodsVo:''
+                },
+                mounted:function(){
+                    axios.get(url).then(function(response){
+                        var data = response.data;
+                        if(data.code==0){
+                            vue.orderInfo = data.data.orderInfo;
+                            vue.goodsVo = data.data.goodsVo;
+                        }else {
+                            layer.msg(data.msg);
+                        }
+                    })
+                }
+            })
+        })
+    </script>
+</div>
+</body>
+</html>
