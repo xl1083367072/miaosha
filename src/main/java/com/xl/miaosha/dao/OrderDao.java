@@ -4,6 +4,8 @@ import com.xl.miaosha.domain.MiaoshaOrder;
 import com.xl.miaosha.domain.OrderInfo;
 import org.apache.ibatis.annotations.*;
 
+import java.util.List;
+
 @Mapper
 public interface OrderDao {
 
@@ -20,5 +22,8 @@ public interface OrderDao {
 
     @Select("select * from order_info where id=#{id}")
     OrderInfo getById(@Param("id") long id);
+
+    @Select("select * from miaosha_order where goods_id = #{goodsId}")
+    List<MiaoshaOrder> getAllOrderByGoodsId(long goodsId);
 
 }

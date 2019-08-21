@@ -45,7 +45,9 @@ public class MiaoshaController implements InitializingBean {
     @Autowired
     MQSender sender;
 
-    private Map<Long,Boolean> map = new HashMap<>();
+    private static Map<Long,Boolean> map = new HashMap<>();
+
+    private static Map<Long,Integer> originalStock = new HashMap<>();
 
 //    1.将商品数量预加载到缓存中
     @Override
@@ -53,6 +55,7 @@ public class MiaoshaController implements InitializingBean {
         List<GoodsVo> list = goodsService.list();
         for (GoodsVo goodsVo:list){
             redisService.set(GoodsKey.goodsStock,""+goodsVo.getId(),goodsVo.getStockCount());
+            originalStock.put(goodsVo.getId(),goodsVo.getStockCount());
             map.put(goodsVo.getId(),false);
         }
     }
@@ -96,6 +99,13 @@ public class MiaoshaController implements InitializingBean {
         sender.sendMiaosha(msg);
 //        立即返回排队中
         return Result.success(0);
+    }
+
+    public static Integer getOriginalStock(long goodsId){
+        Integer stock = originalStock.get(goodsId);
+        if(stock==null)
+            return 0;
+        return stock;
     }
 
     @RequestMapping("/result")

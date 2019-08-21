@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class OrderService {
@@ -50,6 +51,10 @@ public class OrderService {
         orderDao.insertMiaoshaOrder(miaoshaOrder);
         redisService.set(OrderKey.orderInfo,user.getId()+"-"+goods.getId(),miaoshaOrder);
         return orderInfo;
+    }
+
+    public List<MiaoshaOrder> getAllOrderByGoodsId(long goodsId){
+        return orderDao.getAllOrderByGoodsId(goodsId);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.xl.miaosha.service;
 
+import com.xl.miaosha.controller.MiaoshaController;
 import com.xl.miaosha.domain.MiaoshaOrder;
 import com.xl.miaosha.domain.MiaoshaUser;
 import com.xl.miaosha.domain.OrderInfo;
@@ -19,6 +20,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -50,12 +52,35 @@ public class MiaoshaService {
             return order.getOrderId();
         }else {
             boolean over = getGoodsOver(goodsId);
-            if(over){
-                return -1;
-            }else {
+            if(!over){
                 return 0;
+            }else {
+                List<MiaoshaOrder> orders = orderService.getAllOrderByGoodsId(goodsId);
+                Integer originalStock = MiaoshaController.getOriginalStock(goodsId);
+                if(orders==null || orders.size() < originalStock){
+                    return 0;
+                }else {
+                    order = findOrderByUserId(orders, userId);
+                    if(order!=null){
+                        return order.getOrderId();
+                    }else {
+                        return -1;
+                    }
+                }
             }
         }
+    }
+
+    private MiaoshaOrder findOrderByUserId(List<MiaoshaOrder> orders,long userId){
+        if (orders==null || orders.size()<=0){
+            return null;
+        }
+        for (MiaoshaOrder order:orders){
+            if(order.getUserId() == userId){
+                return order;
+            }
+        }
+        return null;
     }
 
     public void setGoodsOver(long goodsId){
